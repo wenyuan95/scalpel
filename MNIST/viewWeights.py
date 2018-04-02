@@ -26,8 +26,18 @@ def main():
 
   model = torch.load(args.model)
 
-  print extract_weights(model, 'conv2', 'alpha').shape
+  alpha_v = extract_weights(model, 'ip1', 'alpha')
+  beta_v = extract_weights(model, 'ip1', 'beta')
 
+  print type(alpha_v)
+  print alpha_v.size()[0], alpha_v.size()[1]
+  print alpha_v.size(), beta_v.size()
+  for i in range(alpha_v.size()[0]):
+    for j in range(alpha_v.size()[1]):
+      print alpha_v[i][j], '-'*3, beta_v[i][j]
+
+  print extract_weights(model, 'conv1', 'kernel').shape
+  
 
 
 if __name__ == "__main__":
