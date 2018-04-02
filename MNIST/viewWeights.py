@@ -1,5 +1,6 @@
 import torch
 import argparse
+import matplotlib.pyplot as plt
 
 def get_cmd_opts():
   parser = argparse.ArgumentParser(description='PyTorch model viewer')
@@ -12,17 +13,6 @@ def get_cmd_opts():
 def get_layer_names(model):
   return [name for name in model['state_dict'].keys()]
 
-#def extract_weights(model, layer, weight='kernel'):
-#  if weight == 'kernel':
-#    return model['state_dict'][layer+'.weight']
-#  elif weight == 'bias':
-#    return model['state_dict'][layer+'.bias']
-#  elif weight == 'alpha':
-#    return model['state_dict']['mask_'+layer+'.alpha']
-#  elif weight == 'beta':
-#    return model['state_dict']['mask_'+layer+'.beta']
-#  else:
-#    raise Exception('Only weight, bias, alpha, beta  value can be extracted from the model.')
 
 def extract_weights(model, layer, weight='kernel'):
   layer_list = get_layer_names(model)
@@ -37,19 +27,14 @@ def main():
 
   model = torch.load(args.model)
 
-  alpha_v = extract_weights(model, 'ip1', 'alpha')
-  beta_v = extract_weights(model, 'ip1', 'beta')
+  weight_map = extract_weights(model, 'conv1', 'weight')
+  print weight_map.squeeze().numpy().shape
+  y = torch.zeros(20,25)
+  y = weight_map.view(20,25)
+  print y.shape
+  plt.matshow(y.numpy().transpose())
 
-  print type(alpha_v)
-  print alpha_v.size()[0], alpha_v.size()[1]
-  print alpha_v.size(), beta_v.size()
-  for i in range(alpha_v.size()[0]):
-    for j in range(alpha_v.size()[1]):
-      print alpha_v[i][j], '-'*3, beta_v[i][j]
-  
-  print extract_weights(model, 'conv1', 'weight').shape
-  
-
+  plt.show()
 
 if __name__ == "__main__":
   main()
