@@ -31,19 +31,33 @@ def view(model, layer, weight, mode='raw'):
 
   output_dim = weight_map.shape[0]
   weight_in_2D = weight_map.view(output_dim,-1)
-  #plt.matshow(weight_in_2D.numpy().transpose())
-  plt.matshow(weight_in_2D.numpy())
+  fig, ax = plt.subplots()
+  ax.imshow(weight_in_2D.numpy())
+  if model == 'pruned':
+    x = np.arange(output_dim)
+  ax.autoscale(False)
+  alpha_value = extract_weights(model, layer, 'alpha')
+  rows = alpha_value.size()[1]
+  mat = torch.FloatTensor(int(torch.sum(alpha_value)), int(weight_in_2D.shape[1]))
+  i = 0
+  for row in range(rows):
+    if alpha_value.squeeze()[row] == 1:
+      mat[i,:] = weight_in_2D[row,:]
+      i+=1
+  ax.imshow(extract_weights(model, layer, 'alpha').numpy().transpose())
+  plt.matshow(mat)
   plt.show()
+  print mat
 
 def main():
   args = get_cmd_opts()
 
   model = torch.load(args.model)
 
-  weight_map = extract_weights(model, 'conv1', 'weight')
-  alpha = extract_weights(model, 'conv1', 'alpha')
+#  weight_map = extract_weights(model, 'conv1', 'weight')
+#  alpha = extract_weights(model, 'conv1', 'alpha')
 
-  view(model, 'conv2', 'weight')
+  view(model, 'ip1', 'weight')
 
 if __name__ == "__main__":
   main()
